@@ -3,9 +3,9 @@
 -- Safe to run multiple times if the DB doesn't already exist (will error if it does)
 -- Adjust the database name if needed.
 
-CREATE DATABASE IF NOT EXISTS dev_vta
+CREATE DATABASE IF NOT EXISTS vta_dev
   /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */;
-USE dev_vta;
+USE vta_dev;
 
 -- Make sure the session uses the desired charset/collation
 SET NAMES utf8mb4 COLLATE utf8mb4_0900_ai_ci;

@@ -32,6 +32,7 @@ services:
     environment:
       - ConnectionStrings__DefaultConnection=server=mysql-test;port=3306;user=giraf;password=Idedmf2002!;database=vta_test
       - AUTO_CREATE_DATABASE=true
+      - ElevenLabs__UseLocalhost=true
     depends_on:
       mysql-test:
         condition: service_healthy

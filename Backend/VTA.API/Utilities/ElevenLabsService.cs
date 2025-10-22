@@ -51,14 +51,6 @@ public class ElevenLabsService
         bool? useSpeakerBoost = null,
         string? languageCode = null)
     {
-        // Temporary mock for testing - remove this when you have a valid API key
-        if (_apiKey.StartsWith("sk_") || _apiKey == "YOUR_VALID_ELEVENLABS_API_KEY_HERE")
-        {
-            Console.WriteLine("Debug: Using mock audio data for testing");
-            // Return a small mock MP3 file (silence)
-            return new byte[] { 0xFF, 0xFB, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        }
-
         try
         {
             var effectiveVoiceId = voiceId ?? DefaultVoiceId;
