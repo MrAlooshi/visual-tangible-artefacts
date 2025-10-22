@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:global_configuration/global_configuration.dart';
 
 /// Configuration manager for ElevenLabs API settings
 class ElevenLabsConfig {
@@ -9,6 +10,7 @@ class ElevenLabsConfig {
   static const String _voiceSimilarityBoostKey = 'elevenlabs_voice_similarity_boost';
   static const String _useSpeakerBoostKey = 'elevenlabs_use_speaker_boost';
   static const String _enabledKey = 'elevenlabs_enabled';
+  static const String _useLocalhostKey = 'elevenlabs_use_localhost';
 
   // Default values
   static const String defaultVoiceId = 'Bj9UqZbhQsanLzgalpEG'; // Custom selected voice
@@ -17,6 +19,7 @@ class ElevenLabsConfig {
   static const double defaultSimilarityBoost = 0.75;
   static const bool defaultUseSpeakerBoost = true;
   static const bool defaultEnabled = false;
+  static const bool defaultUseLocalhost = false;
 
   /// Get the stored API key
   static Future<String?> getApiKey() async {
@@ -108,6 +111,28 @@ class ElevenLabsConfig {
     return await prefs.setBool(_enabledKey, enabled);
   }
 
+  /// Get localhost usage setting
+  static Future<bool> getUseLocalhost() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_useLocalhostKey) ?? defaultUseLocalhost;
+  }
+
+  /// Set localhost usage setting
+  static Future<bool> setUseLocalhost(bool useLocalhost) async {
+    final prefs = await SharedPreferences.getInstance();
+    return await prefs.setBool(_useLocalhostKey, useLocalhost);
+  }
+
+  /// Get the base URL for ElevenLabs API
+  static Future<String> getBaseUrl() async {
+    final useLocalhost = await getUseLocalhost();
+    if (useLocalhost) {
+      return GlobalConfiguration().appConfig['ElevenLabs']['LocalhostUrl'] ?? 'http://localhost:5000/api/elevenlabs';
+    } else {
+      return GlobalConfiguration().appConfig['ElevenLabs']['ProductionUrl'] ?? 'https://api.elevenlabs.io/v1';
+    }
+  }
+
   /// Get all current settings as a map
   static Future<Map<String, dynamic>> getAllSettings() async {
     return {
@@ -118,6 +143,7 @@ class ElevenLabsConfig {
       'voiceSimilarityBoost': await getVoiceSimilarityBoost(),
       'useSpeakerBoost': await getUseSpeakerBoost(),
       'enabled': await getEnabled(),
+      'useLocalhost': await getUseLocalhost(),
     };
   }
 
@@ -139,6 +165,7 @@ class ElevenLabsConfig {
       prefs.remove(_voiceSimilarityBoostKey),
       prefs.remove(_useSpeakerBoostKey),
       prefs.remove(_enabledKey),
+      prefs.remove(_useLocalhostKey),
     ];
     
     final results = await Future.wait(futures);

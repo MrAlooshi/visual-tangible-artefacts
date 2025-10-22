@@ -38,7 +38,8 @@ class ElevenLabsController extends ChangeNotifier {
         return false;
       }
 
-      _service = ElevenLabsService(apiKey: apiKey);
+      final baseUrl = await ElevenLabsConfig.getBaseUrl();
+      _service = ElevenLabsService(apiKey: apiKey, baseUrl: baseUrl);
       
       // Validate the API key
       final bool isValid = await _service!.validateApiKey();
@@ -65,7 +66,8 @@ class ElevenLabsController extends ChangeNotifier {
       _clearError();
 
       // Test the API key
-      final testService = ElevenLabsService(apiKey: apiKey);
+      final baseUrl = await ElevenLabsConfig.getBaseUrl();
+      final testService = ElevenLabsService(apiKey: apiKey, baseUrl: baseUrl);
       final bool isValid = await testService.validateApiKey();
       
       if (!isValid) {
@@ -266,8 +268,4 @@ class ElevenLabsController extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

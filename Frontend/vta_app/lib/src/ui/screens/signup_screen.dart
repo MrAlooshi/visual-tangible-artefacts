@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:vta_app/src/modelsDTOs/signup_form.dart';
-import 'package:vta_app/src/modelsDTOs/signup_response.dart';
 import 'package:vta_app/src/utilities/api/api_provider.dart';
-import 'dart:convert';
-import 'artifact_board_screen.dart';
 import 'login_screen.dart';
 
 class SignupPage extends StatefulWidget {

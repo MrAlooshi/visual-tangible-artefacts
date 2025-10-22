@@ -7,10 +7,10 @@ class LongPressOptionWheel extends StatefulWidget {
   final Widget child;
 
   const LongPressOptionWheel({
-    Key? key,
+    super.key,
     required this.artifact,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<LongPressOptionWheel> createState() => LongPressOptionWheelState();

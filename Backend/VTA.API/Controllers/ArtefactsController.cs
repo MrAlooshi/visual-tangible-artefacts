@@ -265,7 +265,14 @@ public class ArtefactsController(VTAContext context) : ControllerBase
             // Create ElevenLabs service
             var httpClientFactory = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient();
-            var elevenLabsService = new ElevenLabsService(httpClient, apiKey);
+            // Get ElevenLabs configuration
+            var baseUrl = configuration["ElevenLabs:BaseUrl"];
+            var useLocalhost = configuration.GetValue<bool>("ElevenLabs:UseLocalhost");
+            
+            // Use localhost URL if configured for local testing
+            var effectiveBaseUrl = useLocalhost ? "http://localhost:5000/api/elevenlabs" : baseUrl;
+            
+            var elevenLabsService = new ElevenLabsService(httpClient, apiKey, effectiveBaseUrl);
 
             // Generate speech with multilingual support for Danish
             // Backend controls the voice - frontend doesn't specify it
@@ -341,7 +348,14 @@ public class ArtefactsController(VTAContext context) : ControllerBase
             // Create ElevenLabs service
             var httpClientFactory = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient();
-            var elevenLabsService = new ElevenLabsService(httpClient, apiKey);
+            // Get ElevenLabs configuration
+            var baseUrl = configuration["ElevenLabs:BaseUrl"];
+            var useLocalhost = configuration.GetValue<bool>("ElevenLabs:UseLocalhost");
+            
+            // Use localhost URL if configured for local testing
+            var effectiveBaseUrl = useLocalhost ? "http://localhost:5000/api/elevenlabs" : baseUrl;
+            
+            var elevenLabsService = new ElevenLabsService(httpClient, apiKey, effectiveBaseUrl);
 
             // Generate speech with multilingual support for Danish
             // Backend controls the voice - frontend doesn't specify it
@@ -411,7 +425,14 @@ public class ArtefactsController(VTAContext context) : ControllerBase
             // Create ElevenLabs service
             var httpClientFactory = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient();
-            var elevenLabsService = new ElevenLabsService(httpClient, apiKey);
+            // Get ElevenLabs configuration
+            var baseUrl = configuration["ElevenLabs:BaseUrl"];
+            var useLocalhost = configuration.GetValue<bool>("ElevenLabs:UseLocalhost");
+            
+            // Use localhost URL if configured for local testing
+            var effectiveBaseUrl = useLocalhost ? "http://localhost:5000/api/elevenlabs" : baseUrl;
+            
+            var elevenLabsService = new ElevenLabsService(httpClient, apiKey, effectiveBaseUrl);
 
             // Generate speech
             var audioData = await elevenLabsService.GenerateSpeechAsync(
@@ -555,7 +576,14 @@ public class ArtefactsController(VTAContext context) : ControllerBase
             // Create ElevenLabs service
             var httpClientFactory = HttpContext.RequestServices.GetRequiredService<IHttpClientFactory>();
             var httpClient = httpClientFactory.CreateClient();
-            var elevenLabsService = new ElevenLabsService(httpClient, apiKey);
+            // Get ElevenLabs configuration
+            var baseUrl = configuration["ElevenLabs:BaseUrl"];
+            var useLocalhost = configuration.GetValue<bool>("ElevenLabs:UseLocalhost");
+            
+            // Use localhost URL if configured for local testing
+            var effectiveBaseUrl = useLocalhost ? "http://localhost:5000/api/elevenlabs" : baseUrl;
+            
+            var elevenLabsService = new ElevenLabsService(httpClient, apiKey, effectiveBaseUrl);
 
             // Generate speech
             var audioData = await elevenLabsService.GenerateSpeechAsync(

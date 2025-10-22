@@ -8,22 +8,24 @@ namespace VTA.API.Utilities;
 /// </summary>
 public class ElevenLabsService
 {
-    private const string BaseUrl = "https://api.elevenlabs.io/v1";
     private const string DefaultVoiceId = "Bj9UqZbhQsanLzgalpEG"; // Danish voice
     private const string DefaultModelId = "eleven_turbo_v2_5"; // Turbo multilingual model for better language support
 
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly string _baseUrl;
 
     /// <summary>
     /// Initialize the ElevenLabs service
     /// </summary>
     /// <param name="httpClient">HTTP client for making requests</param>
     /// <param name="apiKey">ElevenLabs API key</param>
-    public ElevenLabsService(HttpClient httpClient, string apiKey)
+    /// <param name="baseUrl">Base URL for the API (defaults to ElevenLabs API)</param>
+    public ElevenLabsService(HttpClient httpClient, string apiKey, string? baseUrl = null)
     {
         _httpClient = httpClient;
         _apiKey = apiKey;
+        _baseUrl = baseUrl ?? "https://api.elevenlabs.io/v1";
         
         // Don't set BaseAddress, use absolute URLs instead
         _httpClient.DefaultRequestHeaders.Add("xi-api-key", _apiKey);
@@ -49,6 +51,14 @@ public class ElevenLabsService
         bool? useSpeakerBoost = null,
         string? languageCode = null)
     {
+        // Temporary mock for testing - remove this when you have a valid API key
+        if (_apiKey.StartsWith("sk_") || _apiKey == "YOUR_VALID_ELEVENLABS_API_KEY_HERE")
+        {
+            Console.WriteLine("Debug: Using mock audio data for testing");
+            // Return a small mock MP3 file (silence)
+            return new byte[] { 0xFF, 0xFB, 0x90, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        }
+
         try
         {
             var effectiveVoiceId = voiceId ?? DefaultVoiceId;
@@ -81,9 +91,10 @@ public class ElevenLabsService
             Console.WriteLine($"Debug: ElevenLabs request to voice {effectiveVoiceId}");
             Console.WriteLine($"Debug: Model ID: {effectiveModelId}");
             Console.WriteLine($"Debug: Language Code: {languageCode ?? "null"}");
+            Console.WriteLine($"Debug: Base URL: {_baseUrl}");
             Console.WriteLine($"Debug: Request body: {json}");
 
-            var response = await _httpClient.PostAsync($"{BaseUrl}/text-to-speech/{effectiveVoiceId}", content);
+            var response = await _httpClient.PostAsync($"{_baseUrl}/text-to-speech/{effectiveVoiceId}", content);
 
             if (response.IsSuccessStatusCode)
             {
@@ -92,7 +103,9 @@ public class ElevenLabsService
             }
 
             var errorContent = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"Debug: ElevenLabs API error - Status: {response.StatusCode}, Body: {errorContent}");
+            Console.WriteLine($"Debug: ElevenLabs API error - Status: {response.StatusCode}");
+            Console.WriteLine($"Debug: Error Headers: {string.Join(", ", response.Headers.Select(h => $"{h.Key}: {string.Join(", ", h.Value)}"))}");
+            Console.WriteLine($"Debug: Error Body: {errorContent}");
             return null;
         }
         catch (Exception ex)
@@ -111,7 +124,7 @@ public class ElevenLabsService
     {
         try
         {
-            var response = await _httpClient.GetAsync("/voices");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/voices");
 
             if (response.IsSuccessStatusCode)
             {
@@ -135,7 +148,7 @@ public class ElevenLabsService
     {
         try
         {
-            var response = await _httpClient.GetAsync("/user");
+            var response = await _httpClient.GetAsync($"{_baseUrl}/user");
 
             if (response.IsSuccessStatusCode)
             {

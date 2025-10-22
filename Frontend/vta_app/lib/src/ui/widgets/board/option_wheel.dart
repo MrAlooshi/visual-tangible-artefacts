@@ -1,8 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:vta_app/src/controllers/artifact_controller.dart';
-import 'package:get_it/get_it.dart';
-import 'package:vta_app/src/ui/widgets/board/_long_press_option_wheel.dart';
 
 
 
@@ -19,7 +16,7 @@ class OptionWheel extends StatefulWidget {
 
   // wheel nudge
   const OptionWheel({
-    Key? key,
+    super.key,
     required this.artefactId,
     required this.artefactName,
     required this.showName,
@@ -29,7 +26,7 @@ class OptionWheel extends StatefulWidget {
     this.endDegrees = 80,
     this.baseRadius = 165,
     this.verticalNudge = 0,
-  }) : super(key: key);
+  });
 
   @override
   _OptionWheelState createState() => _OptionWheelState();
@@ -124,7 +121,7 @@ class _OptionWheelState extends State<OptionWheel> with SingleTickerProviderStat
             final double t = Curves.easeOut.transform(_ctrl.value);
             final double animatedRadius = radius * t;
 
-            final List<Map<String, dynamic>> _entries = [];
+            final List<Map<String, dynamic>> entries = [];
             for (int i = 0; i < buttonCount; i++) {
               final double angleDeg = startDegrees + degreesStep * i;
               final double leftPos = (WheelWidth / 2) + animatedRadius * math.cos(angleDeg * math.pi / 180 - math.pi / 2) - buttonSize / 2 + wheelOffsetLeft;
@@ -168,10 +165,10 @@ class _OptionWheelState extends State<OptionWheel> with SingleTickerProviderStat
                   ),
                 ),
               );
-              _entries.add({'left': leftPos, 'top': topPos, 'widget': positionedWidget});
+              entries.add({'left': leftPos, 'top': topPos, 'widget': positionedWidget});
             }
-            _entries.sort((a, b) => (a['top'] as double).compareTo(b['top'] as double));
-            final List<Widget> childrenWidgets = _entries.map<Widget>((e) => e['widget'] as Widget).toList();
+            entries.sort((a, b) => (a['top'] as double).compareTo(b['top'] as double));
+            final List<Widget> childrenWidgets = entries.map<Widget>((e) => e['widget'] as Widget).toList();
 
             // background arc
               childrenWidgets.insert(
@@ -206,7 +203,7 @@ class _OptionWheelState extends State<OptionWheel> with SingleTickerProviderStat
             );
 
             // button hit rects (to dismiss wheel)
-            final List<Rect> _buttonRects = _entries.map((e) {
+            final List<Rect> buttonRects = entries.map((e) {
               final double left = e['left'] as double;
               final double top = e['top'] as double;
               return Rect.fromLTWH(left, top, buttonSize, buttonSize);
@@ -216,7 +213,7 @@ class _OptionWheelState extends State<OptionWheel> with SingleTickerProviderStat
               behavior: HitTestBehavior.translucent,
               onTapDown: (details) {
                 final local = details.localPosition;
-                final bool tappedOnButton = _buttonRects.any((r) => r.contains(local));
+                final bool tappedOnButton = buttonRects.any((r) => r.contains(local));
                 if (!tappedOnButton) {
                   widget.onPressed?.call();
                 }

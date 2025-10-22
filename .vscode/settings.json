@@ -1,5 +1,6 @@
 {
   "dotnet.defaultSolution": "VTA.sln",
   "cmake.ignoreCMakeListsMissing": true,
-  "java.configuration.updateBuildConfiguration": "automatic"
+  "files.autoSave": "afterDelay",
+  "dart.flutterHotReloadOnSave": "all",
 }

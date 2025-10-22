@@ -29,6 +29,8 @@ public static class DbContextExtensions
             catch (Exception e)
             {
                 Console.WriteLine($"An error occurred while configuring MySQL: {e.Message}\n\n Falling Back to a volatile DB");
+                // Fallback to in-memory database for testing
+                opt.UseInMemoryDatabase("VTA_Test_DB");
             }
         });
         return builder;

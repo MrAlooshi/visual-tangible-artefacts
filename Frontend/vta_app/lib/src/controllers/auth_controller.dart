@@ -61,6 +61,23 @@ class AuthController extends ChangeNotifier {
           name: name,
           guardianKey: guardianKey);
       await _model.signup(form);
+      
+      // Show success message and redirect to login
+      if (context != null && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bruger oprettet succesfuldt! Du kan nu logge ind.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Navigate back to login screen after a short delay
+        Future.delayed(Duration(seconds: 1), () {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+          }
+        });
+      }
     } catch (e) {
       if (context != null && context.mounted) {
         _showErrorSnackBar(context, e.toString());

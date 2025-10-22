@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -60,7 +58,7 @@ class ArtefactController extends ChangeNotifier {
             token: GetIt.I.get<Token>().value!,
           );
           notifyListeners();
-          _showSuccessActionSnackBar(context, 'Category tilføjet');
+          _showSuccessActionSnackBar(context, 'Kategori tilføjet');
         } catch (e) {
           _showErrorSnackBar(context, e.toString());
         }
@@ -86,7 +84,7 @@ class ArtefactController extends ChangeNotifier {
         _showSuccessSnackBarAfterAsync(
           scaffoldMessenger,
           screenHeight,
-          'Categori slettet',
+          'Kategori slettet',
         );
       });
     } catch (e) {

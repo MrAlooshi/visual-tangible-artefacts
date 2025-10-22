@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 import 'package:vta_app/src/ui/widgets/board/board_artifact.dart';
 import 'package:vta_app/src/singletons/token.dart';
 import '../../../controllers/linear_board_controller.dart';
-import '_long_press_option_wheel.dart';
 import '../../../utilities/audio/artefact_sound_player.dart';
 
 
@@ -33,6 +32,7 @@ class LinearBoardState extends State<LinearBoard>
   late Animation<Offset> _offsetAnimation;
   bool _showDeleteHover = false;
   bool _isDraggingOverTrashCan = false;
+  bool _isHoveringTrashCan = false;
   bool _isPlayingAllSounds = false;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
@@ -452,9 +452,21 @@ class LinearBoardState extends State<LinearBoard>
                   height: 120,
                   color: Colors.transparent,
                   alignment: Alignment.center,
-                  child: buildTrashCan(
-                    height: _isDraggingOverTrashCan ? 120 : 50,
-                    width: _isDraggingOverTrashCan ? 120 : 50,
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      setState(() {
+                        _isHoveringTrashCan = true;
+                      });
+                    },
+                    onExit: (_) {
+                      setState(() {
+                        _isHoveringTrashCan = false;
+                      });
+                    },
+                    child: buildTrashCan(
+                      height: _isDraggingOverTrashCan ? 120 : 50,
+                      width: _isDraggingOverTrashCan ? 120 : 50,
+                    ),
                   ),
                 );
               },
@@ -472,7 +484,7 @@ class LinearBoardState extends State<LinearBoard>
         width: width,
         height: width,
         decoration: ShapeDecoration(
-          color: color,
+          color: _isHoveringTrashCan ? const Color.fromARGB(255, 244, 0, 0).withOpacity(0.9) : color,
           shape: const OvalBorder(),
           shadows: const [
             BoxShadow(
@@ -484,13 +496,10 @@ class LinearBoardState extends State<LinearBoard>
           ],
         ),
         child: Center(
-          child: Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/icons/trash_bin.png'),
-                fit: BoxFit.scaleDown,
-              ),
-            ),
+          child: Icon(
+            Icons.delete_outline,
+            color: (_isHoveringTrashCan || _isDraggingOverTrashCan) ? Colors.white : Colors.grey[600],
+            size: height * 0.6,
           ),
         ),
       ),

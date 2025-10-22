@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vta_app/src/modelsDTOs/login_response.dart';
 import 'package:vta_app/src/modelsDTOs/signup_form.dart';
-import 'package:vta_app/src/modelsDTOs/user.dart';
 import 'package:vta_app/src/singletons/user_info.dart';
 import 'package:vta_app/src/utilities/api/api_provider.dart';
 import 'package:vta_app/src/singletons/token.dart';
@@ -69,13 +68,14 @@ class AuthModel {
   Future<void> signup(SignupForm form) async {
     try {
       var response =
-          await apiProvider.postAsJson('Users/Signup', body: form.toJson());
+          await apiProvider.postAsJson('Users/SignUp', body: form.toJson());
       if (response != null && response.ok) {
         var jsonData = jsonDecode(response.body);
         var model = LoginResponse.fromJson(jsonData);
-        token.value = model.token;
-        userInfo.userId = model.userId;
-        cacheData(token: token.value, userId: userInfo.userId);
+        // Don't auto-login after signup, let user login manually
+        // token.value = model.token;
+        // userInfo.userId = model.userId;
+        // cacheData(token: token.value, userId: userInfo.userId);
       } else {
         throw Exception(
             'Signup failed with status code: ${response?.statusCode}');

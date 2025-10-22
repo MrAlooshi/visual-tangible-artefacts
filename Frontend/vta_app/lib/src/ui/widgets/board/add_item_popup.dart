@@ -38,7 +38,7 @@ class AddItemPopup extends StatefulWidget {
 
 class _LevelBar extends StatelessWidget {
   final double level; // 0.0 - 1.0
-  const _LevelBar({Key? key, required this.level}) : super(key: key);
+  const _LevelBar({required this.level});
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +72,7 @@ class _AddItemPopupState extends State<AddItemPopup> {
   // Record is implemented via platform interface. Lazily instantiate at
   // runtime inside initState so web/unsupported platforms don't attempt to
   // instantiate an abstract implementation at compile time.
-  dynamic? _recorder;
+  dynamic _recorder;
   final AudioPlayer _player = AudioPlayer();
   final formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
@@ -151,7 +151,7 @@ class _AddItemPopupState extends State<AddItemPopup> {
       return hasName && hasImage;
     } else {
       final hasSound = soundBytes != null;
-      return hasName && hasImage && hasSound;
+      return hasName && hasImage || hasSound;
     }
   }
 
@@ -512,7 +512,7 @@ class _AddItemPopupState extends State<AddItemPopup> {
                               if (amp is Map && amp.containsKey('current')) {
                                 level = (amp['current'] as num).toDouble();
                               } else if (amp is num) {
-                                level = (amp as num).toDouble();
+                                level = (amp).toDouble();
                               }
                             }
                             final normalized = (level <= 0) ? 0.0 : (level / 32768.0).clamp(0.0, 1.0);

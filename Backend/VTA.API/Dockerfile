@@ -1,27 +1,33 @@
-# Build stage
+# Use the official .NET 8.0 runtime as base image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 5192
+
+# Use the official .NET 8.0 SDK for building
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy csproj and restore dependencies
-COPY ["VTA.API/VTA.API.csproj", "VTA.API/"]
-RUN dotnet restore "VTA.API/VTA.API.csproj"
+# Copy project file and restore dependencies
+COPY ["Backend/VTA.API/VTA.API.csproj", "Backend/VTA.API/"]
+RUN dotnet restore "Backend/VTA.API/VTA.API.csproj"
 
-# Copy everything else and build
+# Copy all source code
 COPY . .
-WORKDIR "/src/VTA.API"
+
+# Build the application
+WORKDIR "/src/Backend/VTA.API"
 RUN dotnet build "VTA.API.csproj" -c Release -o /app/build
 
-# Publish stage
+# Publish the application
 FROM build AS publish
-RUN dotnet publish "VTA.API.csproj" -c Release -o /app/publish
+RUN dotnet publish "VTA.API.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Runtime stage
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+# Create final runtime image
+FROM base AS final
 WORKDIR /app
-EXPOSE 8080
-
-# Create Assets directories
-RUN mkdir -p /app/Assets/Categories /app/Assets/Artefacts
-
 COPY --from=publish /app/publish .
+
+# Create Assets directory
+RUN mkdir -p Assets/Categories Assets/Artefacts Assets/Sounds
+
 ENTRYPOINT ["dotnet", "VTA.API.dll"]
