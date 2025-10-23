@@ -74,7 +74,7 @@ class AuthController extends ChangeNotifier {
         // Navigate back to login screen after a short delay
         Future.delayed(Duration(seconds: 1), () {
           if (context.mounted) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pushReplacementNamed(LoginView.routeName);
           }
         });
       }

@@ -33,7 +33,7 @@ class AuthModel {
     try {
       var response = await apiProvider.postAsJson('Users/Login',
           body: {'username': username, 'password': password});
-      if (response != null && response.ok) {
+      if (response != null && response.statusCode >= 200 && response.statusCode < 300) {
         var jsonData = jsonDecode(response.body);
         var model = LoginResponse.fromJson(jsonData);
         token.value = model.token;
@@ -69,7 +69,7 @@ class AuthModel {
     try {
       var response =
           await apiProvider.postAsJson('Users/SignUp', body: form.toJson());
-      if (response != null && response.ok) {
+      if (response != null && response.statusCode >= 200 && response.statusCode < 300) {
         var jsonData = jsonDecode(response.body);
         var model = LoginResponse.fromJson(jsonData);
         // Don't auto-login after signup, let user login manually

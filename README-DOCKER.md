@@ -70,6 +70,24 @@ docker-compose -f docker-compose.build.yml logs
 ```powershell
 docker-compose -f docker-compose.build.yml restart frontend
 docker-compose -f docker-compose.build.yml restart backend
+docker-compose -f docker-compose.build.yml restart backend-test
+```
+
+## Test Miljø
+
+### Kør Kun Test Services
+```powershell
+docker-compose -f docker-compose.build.yml up --build -d backend-test mysql-test
+```
+
+
+### Test Backend API Direkte
+```powershell
+# Test signup endpoint
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass","name":"Test User","guardianKey":"testkey"}' http://localhost:5192/api/Users/SignUp
+
+# Test login endpoint
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass"}' http://localhost:5192/api/Users/Login
 ```
 
 ## Fejlfinding
@@ -84,32 +102,86 @@ docker-compose -f docker-compose.build.yml restart backend
 # Tjek hvad der bruger porte
 netstat -an | findstr :8080
 netstat -an | findstr :5192
+netstat -an | findstr :5193
 netstat -an | findstr :3306
+netstat -an | findstr :3307
 ```
+
+### Almindelige Problemer og Løsninger
+
+#### Frontend Kan Ikke Forbinde til Backend
+**Problem**: `net::ERR_NAME_NOT_RESOLVED` eller `Failed to fetch`
+**Løsning**: 
+- Tjek at backend kører: `docker-compose -f docker-compose.build.yml ps`
+- Tjek backend logs: `docker-compose -f docker-compose.build.yml logs backend`
+- Verificer API URL i `Frontend/vta_app/assets/cfg/app_settings.json` er `http://localhost:5192/api/`
+
+#### Database Forbindelsesproblemer
+**Problem**: Backend kan ikke forbinde til MySQL
+**Løsning**:
+- Tjek MySQL status: `docker-compose -f docker-compose.build.yml ps mysql`
+- Tjek MySQL logs: `docker-compose -f docker-compose.build.yml logs mysql`
+- Verificer connection string i docker-compose miljøvariabler
+
+#### Signup Fungerer Ikke
+**Problem**: Signup fejler med status code null
+**Løsning**:
+- Tjek at API URL er korrekt konfigureret
+- Verificer at backend modtager requests: `docker-compose -f docker-compose.build.yml logs backend`
+- Test API direkte med curl kommandoer ovenfor
+
+#### Blank Skærm Efter Signup
+**Problem**: Signup lykkes men viser blank skærm
+**Løsning**: 
+- Genbygg frontend: `docker-compose -f docker-compose.build.yml up --build -d frontend`
+- Tjek browser console for JavaScript fejl
 
 ## Vigtige Porte
 
 - **Frontend**: `http://localhost:8080`
-- **Backend API**: `localhost:5192`
-- **MySQL Database**: `localhost:3306`
+- **Backend API (Dev)**: `localhost:5192`
+- **Backend API (Test)**: `localhost:5193`
+- **MySQL Database (Dev)**: `localhost:3306`
+- **MySQL Database (Test)**: `localhost:3307`
 
 ## Database Information
 
+### Development Database
 - **Database**: `vta_dev`
+- **Bruger**: `vta_user`
+- **Adgangskode**: `vta_password`
+
+### Test Database
+- **Database**: `vta_test`
 - **Bruger**: `vta_user`
 - **Adgangskode**: `vta_password`
 
 ## Sikkerhed
 
-- **ElevenLabs API**: Konfigureret til produktion
+- **ElevenLabs API**: Konfigureret til produktion med API key
 - **Alle secrets**: Inkluderet i Docker images
 - **Database**: Persistent data (overlever genstarter)
+- **CORS**: Konfigureret til at tillade alle origins for udvikling
+- **JWT**: Sikker token-baseret autentificering
+- **Test Isolation**: Separate test database og backend service
+
+## Seneste Forbedringer
+
+### Test Miljø Integration
+- **Separate test services**: `backend-test` og `mysql-test` for isoleret testing
+- **Dedicated test database**: `vta_test` database på port 3307
+- **Test backend API**: Tilgængelig på port 5193
+
+### Forbedret Navigation og Fejlhåndtering
+- **Signup flow**: Korrekt navigation tilbage til login efter succesfuld registrering
+- **API connectivity**: Løst frontend-backend kommunikationsproblemer
+- **Response handling**: Forbedret HTTP response parsing
 
 ## Support
 
 Hvis der er problemer:
 1. **Tjek Docker Desktop** er kørende
-2. **Kør kommandoen igen** med `--build` flag
+2. **Se troubleshooting sektion** ovenfor for specifikke løsninger
 3. **Kontakt udviklingsteamet** med specifikke fejlbeskeder
 
 ---
