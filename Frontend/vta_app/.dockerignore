@@ -1,0 +1,13 @@
+# Platform-mapper vi ikke skal bruge til web
+android/
+ios/
+linux/
+macos/
+windows/
+
+# Build-filer og IDE-mapper
+build/
+.dart_tool/
+.gradle/
+.idea/
+.metadata/

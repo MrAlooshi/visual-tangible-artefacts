@@ -1,0 +1,65 @@
+version: "3.8"
+
+services:
+  # MySQL Database for local testing
+  mysql-local:
+    image: mysql:8.0
+    container_name: vta-mysql-local
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: vta_local
+      MYSQL_USER: vta_user
+      MYSQL_PASSWORD: vta_password
+    ports:
+      - "3306:3306" # Standard MySQL port
+    volumes:
+      - mysql_local_data:/var/lib/mysql
+      - ./mysql_schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - vta-local-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-prootpassword",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Optional: phpMyAdmin for database management
+  phpmyadmin-local:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: vta-phpmyadmin-local
+    restart: unless-stopped
+    ports:
+      - "8081:80" # phpMyAdmin web interface
+    environment:
+      PMA_HOST: mysql-local
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+    depends_on:
+      mysql-local:
+        condition: service_healthy
+    networks:
+      - vta-local-network
+
+networks:
+  vta-local-network:
+    driver: bridge
+    name: vta-local-network
+
+volumes:
+  mysql_local_data:
+    driver: local
+    name: vta-mysql-local-data

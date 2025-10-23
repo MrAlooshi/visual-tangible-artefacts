@@ -1,105 +1,158 @@
-# VTA Docker Setup
+# VTA Docker Setup Guide
 
-I skal ikke selv "sætte systemet op". I skal kun gøre to ting:
+Hele opsætningen er automatiseret. I skal ikke installere .NET, Flutter, Nginx eller MySQL manuelt. I skal kun gøre to ting:
 
-1. **Installere Docker**
-2. **Køre én kommando**
+1.  Installere Docker Desktop.
+2.  Køre én kommando fra denne guide.
 
-## Jeres Workflow (Sådan Skal I Arbejde)
+## Forudsætninger
 
-Her er den simple guide til jer:
+Før I starter, skal I sikre, at følgende er installeret og kører:
 
-### Første Gang (og efter git pull):
+  * **Docker Desktop**: Skal være kørende og opdateret.
+  * **Git**: Nødvendigt for at klone projekt-repository.
 
-1. **Åbn en terminal** i projektmappen
-2. **Kør denne kommando** for at bygge og starte alt:
+-----
 
-```powershell
-docker-compose -f docker-compose.build.yml up --build -d
-```
+## Arbejdsgang (Workflow)
 
-### Når I Har Ændret i Koden:
+### Første Gang (og efter `git pull`)
 
-1. **I laver en ændring** i koden (f.eks. i VS Code)
-2. **I går tilbage til terminalen** og kører præcis den samme kommando igen:
+1.  **Åbn en terminal** i projektets root folder.
+2.  **Pull de seneste images** fra Docker Hub for at sikre, at I har den nyeste grund-konfiguration:
+    ```powershell
+    docker pull mralooshi/vta-backend:latest
+    docker pull mralooshi/vta-frontend:latest
+    ```
+3.  **Kør kommandoen** for at bygge lokale ændringer og starte alle services:
+    ```powershell
+    docker-compose -f docker-compose.build.yml up --build -d
+    ```
 
-```powershell
-docker-compose -f docker-compose.build.yml up --build -d
-```
+### Når I Har Ændret i Koden
 
-## Hvad Kommandoen Gør
+1.  Foretag jeres kodeændringer (f.eks. i VS Code).
+2.  Gå til terminalen og kør følgende kommando for at genbygge og starte:
+    ```powershell
+    docker-compose -f docker-compose.build.yml up --build -d
+    ```
 
-- **`up`**: Starter applikationen (både frontend og backend)
-- **`--build`**: Dette er den magiske del. Docker tjekker, om kildekoden har ændret sig siden sidst. Hvis den har, genbygger den automatisk kun det nødvendige (f.eks. jeres frontend-image), før den starter appen
-- **`-d`**: Kører det hele i baggrunden
+### Når I Blot Vil Starte Applikationen (Ingen Kodeændringer)
 
-## Dette Løser Begge Jeres Krav Perfekt:
+Hvis applikationen allerede er bygget, og I blot vil starte den (f.eks. efter en genstart af computeren):
 
-**Nemt setup**: I skal ikke installere Flutter, Nginx, eller backend-sprog. I skal kun have Docker og køre én kommando.
+1.  Kør denne kommando (dette er hurtigere, da den ikke genbygger koden):
+    ```powershell
+    docker-compose -f docker-compose.build.yml up -d
+    ```
 
-**Kan ændre kode**: I ændrer koden lokalt, kører kommandoen igen, og Docker genbygger og serverer den nye version.
 
-## Hvad Der Sker Automatisk
+## Teknisk Overblik
 
-Når I kører kommandoen:
+### Hvad kommandoen gør
 
-1. **Docker tjekker** om koden er ændret
-2. **Hvis ja**: Genbygger kun de dele der er ændret
-3. **Hvis nej**: Bruger eksisterende images (hurtigt!)
-4. **Starter alle tjenester** (MySQL, Backend, Frontend)
-5. **Applikationen er tilgængelig** på `http://localhost:8080`
+  * **`up`**: Starter alle services defineret i `docker-compose.build.yml` (backend, frontend, database).
+  * **`--build`**: Dette er den vigtigste parameter. Docker tjekker, om kildekoden har ændret sig siden sidste build. Hvis ja, genbygger den automatisk kun de nødvendige images, før den starter applikationen.
+  * **`-d`**: Kører containerne i "detached mode" (i baggrunden).
+
+### Den Automatiserede Proces
+
+Når I kører `up --build`:
+
+1.  Docker tjekker, om koden i `Frontend` eller `Backend` mapperne er ændret.
+2.  **Hvis ja**: Docker genbygger den specifikke service (f.eks. `vta-frontend` imaget).
+3.  **Hvis nej**: Docker genbruger de eksisterende, byggede images.
+4.  Docker starter alle services i den korrekte rækkefølge (database først, derefter backend, så frontend).
+5.  Applikationen er nu tilgængelig på `http://localhost:8080`.
+
+Denne metode sikrer, at I ikke behøver at installere Flutter, Nginx eller .NET lokalt. Docker håndterer alle afhængigheder. Når I ændrer koden og kører kommandoen igen, genbygger Docker kun de nødvendige dele.
+
+
+#### Verificeringspunkter
+
+  * Frontend indlæses korrekt på `http://localhost:8080`.
+  * "Signup" (oprettelse af ny bruger) fungerer.
+  * "Login" fungerer.
+  * Navigation efter login (f.eks. til "board") virker.
+  * API-kald mellem frontend og backend lykkes.
+  * Data er persistent (en bruger oprettet før en genstart af Docker eksisterer stadig efter genstart).
+
+-----
 
 ## Almindelige Kommandoer
 
-### Start Alt
+### Start (Første gang / efter kodeændring)
+
+Bygger ændringer og starter alle services.
+
 ```powershell
 docker-compose -f docker-compose.build.yml up --build -d
 ```
 
+### Start (Kun kørsel - ingen ændringer)
+
+Starter alle services uden at bygge.
+
+```powershell
+docker-compose -f docker-compose.build.yml up -d
+```
+
 ### Stop Alt
+
+Stopper og fjerner alle services.
+
 ```powershell
 docker-compose -f docker-compose.build.yml down
 ```
 
 ### Se Logs
+
+Viser logs fra alle kørende services.
+
 ```powershell
 docker-compose -f docker-compose.build.yml logs
 ```
 
-### Genstart Specifik Tjeneste
+### Genstart Specifik Service
+
 ```powershell
 docker-compose -f docker-compose.build.yml restart frontend
 docker-compose -f docker-compose.build.yml restart backend
 docker-compose -f docker-compose.build.yml restart backend-test
 ```
 
-## Test Miljø
 
-### Kør Kun Test Services
-```powershell
-docker-compose -f docker-compose.build.yml up --build -d backend-test mysql-test
-```
+### Test Backend API Direkte (via terminal)
 
+Disse kommandoer tester mod test-backend'en (`localhost:5193`).
 
-### Test Backend API Direkte
 ```powershell
 # Test signup endpoint
-curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass","name":"Test User","guardianKey":"testkey"}' http://localhost:5192/api/Users/SignUp
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass","name":"Test User","guardianKey":"testkey"}' http://localhost:5193/api/Users/SignUp
 
 # Test login endpoint
-curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass"}' http://localhost:5192/api/Users/Login
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass"}' http://localhost:5193/api/Users/Login
 ```
 
-## Fejlfinding
+-----
 
-### Hvis Noget Ikke Virker:
-1. **Tjek status**: `docker-compose -f docker-compose.build.yml ps`
-2. **Se logs**: `docker-compose -f docker-compose.build.yml logs [tjeneste-navn]`
-3. **Genstart alt**: `docker-compose -f docker-compose.build.yml down && docker-compose -f docker-compose.build.yml up --build -d`
+## Troubleshooting
 
-### Hvis Porte Er Optaget:
+### Grundlæggende Fejlsøgning
+
+1.  **Tjek status**: Se hvilke services der kører, og hvilke der er stoppet.
+    `docker-compose -f docker-compose.build.yml ps`
+2.  **Se logs**: Tjek log-output for en specifik service (f.eks. `backend`).
+    `docker-compose -f docker-compose.build.yml logs backend`
+3.  **Nulstil alt**: Stop alt, og genbyg fra bunden.
+    `docker-compose -f docker-compose.build.yml down && docker-compose -f docker-compose.build.yml up --build -d`
+
+### Tjek Optagede Porte
+
+Hvis en service ikke kan starte, er det ofte pga. en port-konflikt.
+
 ```powershell
-# Tjek hvad der bruger porte
+# Tjek hvad der bruger portene
 netstat -an | findstr :8080
 netstat -an | findstr :5192
 netstat -an | findstr :5193
@@ -107,83 +160,80 @@ netstat -an | findstr :3306
 netstat -an | findstr :3307
 ```
 
-### Almindelige Problemer og Løsninger
+### Specifikke Problemer og Løsninger
 
-#### Frontend Kan Ikke Forbinde til Backend
-**Problem**: `net::ERR_NAME_NOT_RESOLVED` eller `Failed to fetch`
-**Løsning**: 
-- Tjek at backend kører: `docker-compose -f docker-compose.build.yml ps`
-- Tjek backend logs: `docker-compose -f docker-compose.build.yml logs backend`
-- Verificer API URL i `Frontend/vta_app/assets/cfg/app_settings.json` er `http://localhost:5192/api/`
+#### Frontend kan ikke forbinde til Backend
 
-#### Database Forbindelsesproblemer
-**Problem**: Backend kan ikke forbinde til MySQL
-**Løsning**:
-- Tjek MySQL status: `docker-compose -f docker-compose.build.yml ps mysql`
-- Tjek MySQL logs: `docker-compose -f docker-compose.build.yml logs mysql`
-- Verificer connection string i docker-compose miljøvariabler
+  * **Problem**: Fejl i browser-konsollen: `net::ERR_NAME_NOT_RESOLVED` eller `Failed to fetch`.
+  * **Løsning**:
+    1.  Verificer at backend kører: `docker-compose -f docker-compose.build.yml ps`
+    2.  Tjek backend logs for fejl: `docker-compose -f docker-compose.build.yml logs backend`
+    3.  Verificer API URL i `Frontend/vta_app/assets/cfg/app_settings.json`. Den skal pege på `http://localhost:5192/api/`.
 
-#### Signup Fungerer Ikke
-**Problem**: Signup fejler med status code null
-**Løsning**:
-- Tjek at API URL er korrekt konfigureret
-- Verificer at backend modtager requests: `docker-compose -f docker-compose.build.yml logs backend`
-- Test API direkte med curl kommandoer ovenfor
+#### Databaseforbindelses-problemer
 
-#### Blank Skærm Efter Signup
-**Problem**: Signup lykkes men viser blank skærm
-**Løsning**: 
-- Genbygg frontend: `docker-compose -f docker-compose.build.yml up --build -d frontend`
-- Tjek browser console for JavaScript fejl
+  * **Problem**: Backend-loggen viser fejl om, at den ikke kan forbinde til MySQL.
+  * **Løsning**:
+    1.  Tjek MySQL status: `docker-compose -f docker-compose.build.yml ps mysql`
+    2.  Tjek MySQL logs for fejl under opstart: `docker-compose -f docker-compose.build.yml logs mysql`
+    3.  Verificer connection string i `docker-compose.build.yml`'s miljøvariabler for backend-servicen.
+
+#### Signup Fejler
+
+  * **Problem**: Signup-kaldet fejler med "status code: null".
+  * **Løsning**:
+    1.  Dette er næsten altid et tegn på, at API URL'en er forkert konfigureret (se første punkt).
+    2.  Verificer at backend modtager kaldet: `docker-compose -f docker-compose.build.yml logs backend`
+    3.  Test API'et direkte med `curl`-kommandoerne fra "Testmiljø" sektionen (husk at ændre port til 5192 for dev).
+
+#### Blank Skærm efter Signup
+
+  * **Problem**: Signup lykkes (bruger oprettes i DB), men frontend viser en blank skærm.
+  * **Løsning**:
+    1.  Genbyg frontend: `docker-compose -f docker-compose.build.yml up --build -d frontend`
+    2.  Tjek browser-konsollen (F12) for JavaScript-fejl.
+
+-----
 
 ## Vigtige Porte
 
-- **Frontend**: `http://localhost:8080`
-- **Backend API (Dev)**: `localhost:5192`
-- **Backend API (Test)**: `localhost:5193`
-- **MySQL Database (Dev)**: `localhost:3306`
-- **MySQL Database (Test)**: `localhost:3307`
+  * **Frontend**: `http://localhost:8080` (Applikationen i browseren)
+  * **Backend API (Dev)**: `http://localhost:5192` (Udviklings-API)
+  * **Backend API (Test)**: `http://localhost:5193` (Test-API)
+  * **MySQL Database (Dev)**: `localhost:3306` 
+  * **MySQL Database (Test)**: `localhost:3307` 
+  Brug eventuelt mysql workbench til at tjekke databasen
 
-## Database Information
+## Databaseinformation
 
 ### Development Database
-- **Database**: `vta_dev`
-- **Bruger**: `vta_user`
-- **Adgangskode**: `vta_password`
+
+  * **Database**: `vta_dev`
+  * **Bruger**: `vta_user`
+  * **Password**: `vta_password`
 
 ### Test Database
-- **Database**: `vta_test`
-- **Bruger**: `vta_user`
-- **Adgangskode**: `vta_password`
 
-## Sikkerhed
+  * **Database**: `vta_test`
+  * **Bruger**: `vta_user`
+  * **Password**: `vta_password`
 
-- **ElevenLabs API**: Konfigureret til produktion med API key
-- **Alle secrets**: Inkluderet i Docker images
-- **Database**: Persistent data (overlever genstarter)
-- **CORS**: Konfigureret til at tillade alle origins for udvikling
-- **JWT**: Sikker token-baseret autentificering
-- **Test Isolation**: Separate test database og backend service
+-----
 
-## Seneste Forbedringer
+## Sikkerhedsoverblik
 
-### Test Miljø Integration
-- **Separate test services**: `backend-test` og `mysql-test` for isoleret testing
-- **Dedicated test database**: `vta_test` database på port 3307
-- **Test backend API**: Tilgængelig på port 5193
+  * **ElevenLabs API**: Konfigureret til produktion med API-nøgle.
+  * **Secrets**: Alle nødvendige secrets (DB-password, JWT-nøgle) er inkluderet i Docker-opsætningen.
+  * **Database**: Data er persistente og overlever genstart af containerne (gemmes i et Docker-volume).
+  * **CORS**: Konfigureret til at tillade alle origins (standard for udvikling).
+  * **JWT**: Token-baseret autentificering er implementeret.
+  * **Test Isolation**: Testmiljøet (services og database) er fuldt adskilt fra udviklingsmiljøet.
 
-### Forbedret Navigation og Fejlhåndtering
-- **Signup flow**: Korrekt navigation tilbage til login efter succesfuld registrering
-- **API connectivity**: Løst frontend-backend kommunikationsproblemer
-- **Response handling**: Forbedret HTTP response parsing
+
 
 ## Support
 
-Hvis der er problemer:
-1. **Tjek Docker Desktop** er kørende
-2. **Se troubleshooting sektion** ovenfor for specifikke løsninger
-3. **Kontakt udviklingsteamet** med specifikke fejlbeskeder
+Hvis der opstår problemer:
 
----
-
-**Husk**: Denne løsning gør det nemt for jer at arbejde med projektet uden at skulle sætte komplekse udviklingsmiljøer op. I skal kun have Docker og køre én kommando!
+1.  Sikr at Docker Desktop kører.
+2.  Gennemgå "Troubleshooting" sektionen ovenfor.
