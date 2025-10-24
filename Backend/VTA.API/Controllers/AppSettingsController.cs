@@ -19,13 +19,13 @@ public class AppSettingsController : ControllerBase
             {
                 BaseUrl = new
                 {
-                    Local = "http://localhost:5192/api/",
-                    Remote = "http://localhost:5192/api/"
+                    Local = "http://localhost:8080/api/",
+                    Remote = "http://localhost:8080/api/"
                 }
             },
             ElevenLabs = new
             {
-                LocalhostUrl = "http://localhost:5192/api/elevenlabs",
+                LocalhostUrl = "http://localhost:8080/api/elevenlabs",
                 ProductionUrl = "https://api.elevenlabs.io/v1"
             }
         };

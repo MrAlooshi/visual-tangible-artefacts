@@ -264,20 +264,19 @@ docker-compose -f docker-compose.build.yml logs
 ```powershell
 docker-compose -f docker-compose.build.yml restart frontend
 docker-compose -f docker-compose.build.yml restart backend
-docker-compose -f docker-compose.build.yml restart backend-test
 ```
 
 
 ### Test Backend API Direkte (via terminal)
 
-Disse kommandoer tester mod test-backend'en (`localhost:5193`).
+Disse kommandoer tester mod backend'en (`localhost:5192`).
 
 ```powershell
 # Test signup endpoint
-curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass","name":"Test User","guardianKey":"testkey"}' http://localhost:5193/api/Users/SignUp
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass","name":"Test User","guardianKey":"testkey"}' http://localhost:5192/api/Users/SignUp
 
 # Test login endpoint
-curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass"}' http://localhost:5193/api/Users/Login
+curl -X POST -H "Content-Type: application/json" -d '{"username":"testuser","password":"testpass"}' http://localhost:5192/api/Users/Login
 ```
 
 -----
@@ -301,9 +300,7 @@ Hvis en service ikke kan starte, er det ofte pga. en port-konflikt.
 # Tjek hvad der bruger portene
 netstat -an | findstr :8080
 netstat -an | findstr :5192
-netstat -an | findstr :5193
 netstat -an | findstr :3306
-netstat -an | findstr :3307
 ```
 
 ### Specifikke Problemer og Løsninger
@@ -344,10 +341,8 @@ netstat -an | findstr :3307
 ## Vigtige Porte
 
   * **Frontend**: `http://localhost:8080` (Applikationen i browseren)
-  * **Backend API (Dev)**: `http://localhost:5192` (Udviklings-API)
-  * **Backend API (Test)**: `http://localhost:5193` (Test-API)
-  * **MySQL Database (Dev)**: `localhost:3306` 
-  * **MySQL Database (Test)**: `localhost:3307` 
+  * **Backend API**: `http://localhost:5192` (API)
+  * **MySQL Database**: `localhost:3306` 
   Brug eventuelt mysql workbench til at tjekke databasen
 
 ## Databaseinformation
@@ -355,12 +350,6 @@ netstat -an | findstr :3307
 ### Development Database
 
   * **Database**: `vta_dev`
-  * **Bruger**: `vta_user`
-  * **Password**: `vta_password`
-
-### Test Database
-
-  * **Database**: `vta_test`
   * **Bruger**: `vta_user`
   * **Password**: `vta_password`
 

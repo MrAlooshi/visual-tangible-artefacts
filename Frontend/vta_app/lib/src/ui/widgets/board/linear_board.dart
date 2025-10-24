@@ -9,7 +9,6 @@ import 'package:vta_app/src/singletons/token.dart';
 import '../../../controllers/linear_board_controller.dart';
 import '../../../utilities/audio/artefact_sound_player.dart';
 
-
 class LinearBoard extends StatefulWidget {
   final Color? backgroundColor;
   final LinearBoardController linearBoardController;
@@ -72,25 +71,24 @@ class LinearBoardState extends State<LinearBoard>
   /// Play audio for artefact if it has sound attached
   Future<void> _playArtefactAudio(BoardArtefact artefact) async {
     if (artefact.baseArtefact?.artefactId == null) return;
-    
+
     try {
       final token = GetIt.instance.get<Token>().value;
       if (token == null) return;
 
       final artefactId = artefact.baseArtefact!.artefactId!;
       final audioUrl = 'Remote/Users/Artefacts/$artefactId/play-audio';
-      
+
       print('Debug: Playing audio for artefact $artefactId');
-      
+
       // Set the audio source to the backend endpoint
       await _audioPlayer.setUrl(audioUrl, headers: {
         'Authorization': 'Bearer $token',
       });
-      
+
       // Play the audio
       await _audioPlayer.play();
       print('Debug: Audio playback started successfully');
-      
     } catch (e) {
       print('Debug: Error playing artefact audio: $e');
       // Don't show error to user, just log it - this is optional functionality
@@ -112,17 +110,20 @@ class LinearBoardState extends State<LinearBoard>
       _isPlayingAllSounds = true;
     });
 
-    print('Debug: LinearBoard - Total artefacts on board: ${_linearBoardController.artifacts.length}');
-    
+    print(
+        'Debug: LinearBoard - Total artefacts on board: ${_linearBoardController.artifacts.length}');
+
     // Debug each artefact
     for (var artifact in _linearBoardController.artifacts) {
       if (artifact != null) {
-        print('Debug: LinearBoard - Artefact ID: ${artifact.baseArtefact?.artefactId}, soundUrl: ${artifact.baseArtefact?.soundUrl}');
+        print(
+            'Debug: LinearBoard - Artefact ID: ${artifact.baseArtefact?.artefactId}, soundUrl: ${artifact.baseArtefact?.soundUrl}');
       }
     }
-    
+
     final artefacts = _linearBoardController.artifacts
-        .where((artifact) => artifact?.baseArtefact?.soundUrl?.isNotEmpty == true)
+        .where(
+            (artifact) => artifact?.baseArtefact?.soundUrl?.isNotEmpty == true)
         .toList();
 
     if (artefacts.isEmpty) {
@@ -140,11 +141,13 @@ class LinearBoardState extends State<LinearBoard>
         if (boardArtefact != null && _isPlayingAllSounds) {
           try {
             final token = GetIt.instance.get<Token>().value;
-            
+
             if (token != null) {
-              final audioUrl = 'http://localhost:5192/api/Users/Artefacts/${boardArtefact.baseArtefact!.artefactId}/play-audio';
-              print('Debug: Playing sound for artefact ${boardArtefact.baseArtefact!.artefactId}');
-              
+              final audioUrl =
+                  'http://localhost:8080/api/Users/Artefacts/${boardArtefact.baseArtefact!.artefactId}/play-audio';
+              print(
+                  'Debug: Playing sound for artefact ${boardArtefact.baseArtefact!.artefactId}');
+
               // Fetch audio data with proper authentication
               final response = await http.get(
                 Uri.parse(audioUrl),
@@ -152,26 +155,30 @@ class LinearBoardState extends State<LinearBoard>
                   'Authorization': 'Bearer $token',
                 },
               );
-              
+
               if (response.statusCode == 200) {
                 // Set audio source from bytes and play
                 await _audioPlayer.setAudioSource(
-                  AudioSource.uri(Uri.dataFromBytes(response.bodyBytes, mimeType: 'audio/mpeg')),
+                  AudioSource.uri(Uri.dataFromBytes(response.bodyBytes,
+                      mimeType: 'audio/mpeg')),
                 );
                 await _audioPlayer.play();
               } else {
-                print('Debug: Failed to fetch audio - Status: ${response.statusCode}');
+                print(
+                    'Debug: Failed to fetch audio - Status: ${response.statusCode}');
                 continue; // Skip to next artefact
               }
-              
+
               // Wait for the audio to complete before playing the next one
-              await _audioPlayer.playerStateStream
-                  .firstWhere((state) => state.processingState == ProcessingState.completed);
-              
-              print('Debug: Finished playing sound for artefact ${boardArtefact.baseArtefact!.artefactId}');
+              await _audioPlayer.playerStateStream.firstWhere((state) =>
+                  state.processingState == ProcessingState.completed);
+
+              print(
+                  'Debug: Finished playing sound for artefact ${boardArtefact.baseArtefact!.artefactId}');
             }
           } catch (e) {
-            print('Debug: Error playing sound for artefact ${boardArtefact.baseArtefact?.artefactId}: $e');
+            print(
+                'Debug: Error playing sound for artefact ${boardArtefact.baseArtefact?.artefactId}: $e');
             // Continue to next artefact even if this one fails
           }
         }
@@ -181,7 +188,7 @@ class LinearBoardState extends State<LinearBoard>
         _isPlayingAllSounds = false;
       });
     }
-    
+
     print('Debug: Finished playing all artefact sounds');
   }
 
@@ -283,7 +290,8 @@ class LinearBoardState extends State<LinearBoard>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -294,7 +302,6 @@ class LinearBoardState extends State<LinearBoard>
             _buildInteractiveTrashcan(context),
           ],
         ),
-
       ],
     );
   }
@@ -372,7 +379,7 @@ class LinearBoardState extends State<LinearBoard>
     );
   }
 
-   Widget _buildDraggableArtifact(BuildContext context, BoardArtefact artifact,
+  Widget _buildDraggableArtifact(BuildContext context, BoardArtefact artifact,
       int index, double artifactWidth, double artifactHeight) {
     return Draggable<BoardArtefact>(
       data: artifact,
@@ -484,7 +491,9 @@ class LinearBoardState extends State<LinearBoard>
         width: width,
         height: width,
         decoration: ShapeDecoration(
-          color: _isHoveringTrashCan ? const Color.fromARGB(255, 244, 0, 0).withOpacity(0.9) : color,
+          color: _isHoveringTrashCan
+              ? const Color.fromARGB(255, 244, 0, 0).withOpacity(0.9)
+              : color,
           shape: const OvalBorder(),
           shadows: const [
             BoxShadow(
@@ -498,7 +507,9 @@ class LinearBoardState extends State<LinearBoard>
         child: Center(
           child: Icon(
             Icons.delete_outline,
-            color: (_isHoveringTrashCan || _isDraggingOverTrashCan) ? Colors.white : Colors.grey[600],
+            color: (_isHoveringTrashCan || _isDraggingOverTrashCan)
+                ? Colors.white
+                : Colors.grey[600],
             size: height * 0.6,
           ),
         ),

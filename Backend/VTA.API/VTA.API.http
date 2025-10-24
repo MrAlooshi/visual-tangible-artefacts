@@ -1,4 +1,4 @@
-@VTA.API_HostAddress = http://localhost:5192
+@VTA.API_HostAddress = http://localhost:8080
 
 GET {{VTA.API_HostAddress}}/weatherforecast/
 Accept: application/json
