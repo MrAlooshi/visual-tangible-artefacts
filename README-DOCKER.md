@@ -47,6 +47,150 @@ Hvis applikationen allerede er bygget, og I blot vil starte den (f.eks. efter en
     ```
 
 
+## Troubleshooting MySQL Issues
+
+### Common Problems and Solutions
+
+#### 1. MySQL Container Shows as "Unhealthy"
+**Symptoms:** `docker ps` shows MySQL container as "unhealthy"
+
+**Solution:**
+```powershell
+# Run the troubleshooting script
+.\troubleshoot-mysql.ps1
+
+# Or manually restart MySQL
+docker-compose down
+docker volume rm vta-mysql-data
+docker-compose up -d mysql
+```
+
+#### 2. Sign-up Errors Related to Database
+**Symptoms:** Sign-up fails with database connection errors
+
+**Causes:**
+- MySQL container not ready when backend starts
+- Wrong connection string in appsettings
+- Database/tables not initialized
+
+**Solution:**
+```powershell
+# Check MySQL logs
+docker logs vta-mysql
+
+# Verify database exists
+docker exec vta-mysql mysql -u root -prootpassword -e "SHOW DATABASES;"
+
+# Check tables exist
+docker exec vta-mysql mysql -u root -prootpassword -e "USE vta_dev; SHOW TABLES;"
+```
+
+#### 3. Password Mismatch Issues
+**Symptoms:** Health checks fail, connection refused
+
+**Solution:** Ensure passwords match across all files:
+- `docker-compose.yml`: `MYSQL_ROOT_PASSWORD: rootpassword`
+- Health check: `-prootpassword`
+- Connection strings: Use `vta_user` with `vta_password`
+
+#### 4. Database Not Initialized
+**Symptoms:** Tables missing, schema errors
+
+**Solution:**
+```powershell
+# Ensure schema file is mounted correctly
+docker exec vta-mysql ls -la /docker-entrypoint-initdb.d/
+
+# Recreate with schema
+docker-compose down
+docker volume rm vta-mysql-data
+docker-compose up -d mysql
+```
+
+### Quick Health Check Commands
+
+```powershell
+# Check all container status
+docker ps
+
+# Check MySQL health specifically
+docker exec vta-mysql mysqladmin ping -h localhost -u root -prootpassword
+
+# View MySQL logs
+docker logs vta-mysql
+
+# Check backend logs
+docker logs vta-backend
+```
+
+## Network Access for Team Development
+
+### Understanding Docker Networking
+
+When you run `docker-compose up -d`, the containers are bound to `0.0.0.0` instead of `localhost`, making them accessible from other machines on your network.
+
+**Perfect! The MySQL container is now running and healthy. Notice it's bound to 0.0.0.0:3306, which means it's accessible from other machines on your network.**
+
+### Access URLs
+
+Once containers are running, they're accessible at:
+
+- **Frontend:** `http://192.168.32.8:8080`
+- **Backend API:** `http://YOUR_IP:5192/api`
+- **MySQL Database:** `YOUR_IP:3306`
+
+### Finding Your Machine's IP Address
+
+```powershell
+# Windows
+ipconfig | findstr "IPv4"
+
+# The output will show your IP address (e.g., 192.168.1.100)
+```
+
+### Team Configuration
+
+For team members to connect to your shared database:
+
+**Option 1: Use Docker Compose (Recommended)**
+```powershell
+# Everyone runs this command
+docker-compose up -d
+```
+
+**Option 2: Connect to Shared Machine**
+Update configuration files to use the host machine's IP instead of localhost:
+
+**Backend (`appsettingsLocal.json`):**
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=192.168.1.100;port=3306;user=vta_user;password=vta_password;database=vta_dev"
+  }
+}
+```
+
+**Frontend (`assets/cfg/app_settings.json`):**
+```json
+{
+    "ApiSettings": {
+        "BaseUrl": {
+            "Local": "http://192.168.1.100:5192/api/",
+            "Remote": "http://192.168.1.100:5192/api/"
+        }
+    }
+}
+```
+
+### Troubleshooting Network Issues
+
+If team members can't connect:
+
+1. **Check firewall settings** - Ensure ports 3306, 5192, and 8080 are open
+2. **Verify network connectivity** - Test with `ping YOUR_IP`
+3. **Check Docker binding** - Run `docker ps` to confirm containers show `0.0.0.0:PORT`
+4. **Test database connection** - Use `telnet YOUR_IP 3306` to verify MySQL port is accessible
+
 ## Teknisk Overblik
 
 ### Hvad kommandoen gør
