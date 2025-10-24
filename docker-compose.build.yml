@@ -12,6 +12,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./mysql_schema.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       - vta-network
     healthcheck:
@@ -29,37 +30,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  mysql-test:
-    image: mysql:8.0
-    container_name: vta-mysql-test
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: vta_test
-      MYSQL_USER: vta_user
-      MYSQL_PASSWORD: vta_password
-    ports:
-      - "3307:3306" # Different port to avoid conflicts
-    volumes:
-      - mysql_test_data:/var/lib/mysql
-    networks:
-      - vta-network
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-proot_password",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      start_period: 30s
 
   backend:
     build:
@@ -88,32 +59,6 @@ services:
     networks:
       - vta-network
 
-  backend-test:
-    build:
-      context: .
-      dockerfile: Backend/VTA.API/Dockerfile
-    container_name: vta-backend-test
-    ports:
-      - "5193:8080" # Different port for test
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Testing
-      - ASPNETCORE_URLS=http://+:8080
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ConnectionStrings__DefaultConnection=server=mysql-test;port=3306;database=vta_test;user=vta_user;password=vta_password
-      - Secret__SecretKey=your-secret-key-change-this-in-production-minimum-32-characters-long
-      - AUTO_CREATE_DATABASE=true
-      - ElevenLabs__UseLocalhost=true
-      - ElevenLabs__ApiKey=sk_9b25dc7767856fbb11acb9552efbbbec31369a3c41698436
-      - ElevenLabs__BaseUrl=https://api.elevenlabs.io/v1
-    depends_on:
-      mysql-test:
-        condition: service_healthy
-    volumes:
-      - backend_test_assets:/app/Assets
-    networks:
-      - vta-network
-    restart: unless-stopped
-
   frontend:
     build:
       context: ./Frontend/vta_app
@@ -135,9 +80,5 @@ networks:
 volumes:
   mysql_data:
     driver: local
-  mysql_test_data:
-    driver: local
   backend_assets:
-    driver: local
-  backend_test_assets:
     driver: local
