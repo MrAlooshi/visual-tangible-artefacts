@@ -28,6 +28,8 @@ Før I starter, skal I sikre, at følgende er installeret og kører:
     ```powershell
     docker-compose -f docker-compose.build.yml up --build -d
     ```
+    
+    **Note:** We only use `docker-compose.build.yml` - the regular `docker-compose.yml` has been removed to avoid confusion.
 
 ### Når I Har Ændret i Koden
 
@@ -155,7 +157,7 @@ For team members to connect to your shared database:
 **Option 1: Use Docker Compose (Recommended)**
 ```powershell
 # Everyone runs this command
-docker-compose up -d
+docker-compose -f docker-compose.build.yml up -d
 ```
 
 **Option 2: Connect to Shared Machine**

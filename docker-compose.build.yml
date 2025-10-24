@@ -15,7 +15,17 @@ services:
     networks:
       - vta-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot_password",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,13 +40,23 @@ services:
       MYSQL_USER: vta_user
       MYSQL_PASSWORD: vta_password
     ports:
-      - "3307:3306"  # Different port to avoid conflicts
+      - "3307:3306" # Different port to avoid conflicts
     volumes:
       - mysql_test_data:/var/lib/mysql
     networks:
       - vta-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot_password",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,6 +73,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__DefaultConnection=server=mysql;port=3306;database=vta_dev;user=vta_user;password=vta_password
       - Secret__SecretKey=your-secret-key-change-this-in-production-minimum-32-characters-long
       - AUTO_CREATE_DATABASE=true
@@ -73,10 +94,11 @@ services:
       dockerfile: Backend/VTA.API/Dockerfile
     container_name: vta-backend-test
     ports:
-      - "5193:8080"  # Different port for test
+      - "5193:8080" # Different port for test
     environment:
       - ASPNETCORE_ENVIRONMENT=Testing
       - ASPNETCORE_URLS=http://+:8080
+      - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__DefaultConnection=server=mysql-test;port=3306;database=vta_test;user=vta_user;password=vta_password
       - Secret__SecretKey=your-secret-key-change-this-in-production-minimum-32-characters-long
       - AUTO_CREATE_DATABASE=true

@@ -11,9 +11,9 @@ docker version
 docker ps
 ```
 
-### 2. Use Correct Docker Compose File
+### 2. Use Docker Compose Build File
 ```powershell
-# IMPORTANT: Use the build file, not the regular one
+# IMPORTANT: Always use the build file (regular docker-compose.yml has been removed)
 docker-compose -f docker-compose.build.yml up --build -d
 ```
 
@@ -69,8 +69,8 @@ Check `Backend/VTA.API/appsettingsLocal.json`:
 ## 🚨 Common Issues & Solutions
 
 ### Issue 1: Wrong Docker Compose File
-**Problem:** Using `docker-compose up -d` instead of `docker-compose -f docker-compose.build.yml up -d`
-**Solution:** Always use the build file
+**Problem:** Using `docker-compose up -d` (this file no longer exists)
+**Solution:** Always use `docker-compose -f docker-compose.build.yml up -d`
 
 ### Issue 2: Old Code Version
 **Problem:** Team doesn't have the latest code with the fixed method name
@@ -88,7 +88,7 @@ docker-compose -f docker-compose.build.yml up --build -d
 netstat -ano | findstr :5192
 
 # Stop conflicting services
-docker-compose down
+docker-compose -f docker-compose.build.yml down
 docker-compose -f docker-compose.build.yml up -d
 ```
 
@@ -115,7 +115,6 @@ docker exec vta-mysql mysql -u root -proot_password -e "SHOW DATABASES;"
 
 ```powershell
 # Stop everything
-docker-compose down
 docker-compose -f docker-compose.build.yml down
 
 # Remove volumes (WARNING: This deletes all data)
