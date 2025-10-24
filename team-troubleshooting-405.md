@@ -57,7 +57,7 @@ Check `Frontend/vta_app/assets/cfg/app_settings.json`:
 ```
 
 ### Step 4: Verify Backend Configuration
-Check `Backend/VTA.API/appsettingsLocal.json`:
+Check `Backend/VTA.API/appsettings.Docker.json`:
 ```json
 {
   "ConnectionStrings": {

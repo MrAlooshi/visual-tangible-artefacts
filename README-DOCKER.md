@@ -163,7 +163,7 @@ docker-compose -f docker-compose.build.yml up -d
 **Option 2: Connect to Shared Machine**
 Update configuration files to use the host machine's IP instead of localhost:
 
-**Backend (`appsettingsLocal.json`):**
+**Backend (`appsettings.Docker.json`):**
 ```json
 {
   "ConnectionStrings": {

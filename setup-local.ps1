@@ -1,8 +1,7 @@
-# VTA Local Development Environment Setup Script (PowerShell)
-# This script sets up the database environment for the VTA project
-# Backend and Frontend run locally for optimal hot reload functionality
+# VTA Development Environment Setup Script (PowerShell)
+# This script sets up the complete VTA development environment using Docker
 
-Write-Host "Setting up VTA Local Development Environment..." -ForegroundColor Green
+Write-Host "Setting up VTA Development Environment..." -ForegroundColor Green
 
 # Check if Docker is installed and running
 try {
@@ -46,15 +45,15 @@ else {
 # Stop any existing containers
 Write-Host "Stopping any existing containers..." -ForegroundColor Yellow
 try {
-    docker-compose -f docker-compose.local.yml down 2>$null
+    docker-compose -f docker-compose.build.yml down 2>$null
 }
 catch {
     # Ignore errors if no containers are running
 }
 
-# Start database services
-Write-Host "Starting database services..." -ForegroundColor Yellow
-docker-compose -f docker-compose.local.yml up -d
+# Start all services
+Write-Host "Starting all services..." -ForegroundColor Yellow
+docker-compose -f docker-compose.build.yml up --build -d
 
 # Wait for services to be healthy
 Write-Host "Waiting for services to be ready..." -ForegroundColor Yellow
@@ -65,41 +64,48 @@ Write-Host "Checking database health..." -ForegroundColor Yellow
 
 # Check MySQL
 try {
-    docker exec vta-mysql-local mysqladmin ping -h localhost -u root -prootpassword 2>$null
+    docker exec vta-mysql mysqladmin ping -h localhost -u root -proot_password 2>$null
     Write-Host " MySQL is healthy" -ForegroundColor Green
 }
 catch {
     Write-Host "MySQL is not responding" -ForegroundColor Red
 }
 
-# Check phpMyAdmin
+# Check Backend
 try {
-    $response = Invoke-WebRequest -Uri "http://localhost:8081" -UseBasicParsing -TimeoutSec 5
-    Write-Host "phpMyAdmin is accessible" -ForegroundColor Green
+    $response = Invoke-WebRequest -Uri "http://localhost:5192/swagger" -UseBasicParsing -TimeoutSec 5
+    Write-Host "Backend is accessible" -ForegroundColor Green
 }
 catch {
-    Write-Host "phpMyAdmin might still be starting up" -ForegroundColor Yellow
+    Write-Host "Backend might still be starting up" -ForegroundColor Yellow
+}
+
+# Check Frontend
+try {
+    $response = Invoke-WebRequest -Uri "http://localhost:8080" -UseBasicParsing -TimeoutSec 5
+    Write-Host "Frontend is accessible" -ForegroundColor Green
+}
+catch {
+    Write-Host "Frontend might still be starting up" -ForegroundColor Yellow
 }
 
 Write-Host ""
-Write-Host "Database setup complete! Now start your backend and frontend locally:" -ForegroundColor Green
+Write-Host "Development environment setup complete!" -ForegroundColor Green
 Write-Host ""
-Write-Host "Database services available at:" -ForegroundColor Cyan
-Write-Host "   • phpMyAdmin:   http://localhost:8081" -ForegroundColor White
+Write-Host "Services available at:" -ForegroundColor Cyan
+Write-Host "   • Frontend:     http://localhost:8080" -ForegroundColor White
+Write-Host "   • Backend API:  http://localhost:5192" -ForegroundColor White
+Write-Host "   • Swagger UI:   http://localhost:5192/swagger" -ForegroundColor White
 Write-Host "   • MySQL:        localhost:3306" -ForegroundColor White
 Write-Host ""
-Write-Host "Next steps:" -ForegroundColor Cyan
-Write-Host "   1. Start Backend:  cd Backend/VTA.API && dotnet run" -ForegroundColor White
-Write-Host "   2. Start Frontend: cd Frontend/vta_app && flutter run -d web-server --web-port 8080" -ForegroundColor White
-Write-Host ""
 Write-Host "Management commands:" -ForegroundColor Cyan
-Write-Host "   • Stop database:  docker-compose -f docker-compose.local.yml down" -ForegroundColor White
-Write-Host "   • View logs:      docker-compose -f docker-compose.local.yml logs -f" -ForegroundColor White
-Write-Host "   • Restart:        docker-compose -f docker-compose.local.yml up -d" -ForegroundColor White
+Write-Host "   • Stop all:      docker-compose -f docker-compose.build.yml down" -ForegroundColor White
+Write-Host "   • View logs:     docker-compose -f docker-compose.build.yml logs -f" -ForegroundColor White
+Write-Host "   • Restart:       docker-compose -f docker-compose.build.yml up --build -d" -ForegroundColor White
 Write-Host ""
 Write-Host "Database credentials:" -ForegroundColor Cyan
-Write-Host "   • Root user:    root / rootpassword" -ForegroundColor White
+Write-Host "   • Root user:    root / root_password" -ForegroundColor White
 Write-Host "   • App user:     vta_user / vta_password" -ForegroundColor White
-Write-Host "   • Database:     vta_local" -ForegroundColor White
+Write-Host "   • Database:     vta_dev" -ForegroundColor White
 Write-Host ""
-Write-Host "Happy coding with hot reload!" -ForegroundColor Green
+Write-Host "Happy coding!" -ForegroundColor Green
