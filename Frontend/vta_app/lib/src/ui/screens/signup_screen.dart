@@ -14,7 +14,7 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ApiProvider apiProvider =
-      ApiProvider(baseUrl: 'https://api.giraf.live/api');
+      ApiProvider(baseUrl: 'http://localhost:5192/api/');
 
   // Future<void> _signup() async {
   //   if (_formKey.currentState!.validate()) {

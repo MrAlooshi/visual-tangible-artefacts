@@ -144,7 +144,7 @@ class LinearBoardState extends State<LinearBoard>
 
             if (token != null) {
               final audioUrl =
-                  'http://localhost:8080/api/Users/Artefacts/${boardArtefact.baseArtefact!.artefactId}/play-audio';
+                  'http://localhost:5192/api/Users/Artefacts/${boardArtefact.baseArtefact!.artefactId}/play-audio';
               print(
                   'Debug: Playing sound for artefact ${boardArtefact.baseArtefact!.artefactId}');
 

@@ -7,13 +7,15 @@ class ElevenLabsConfig {
   static const String _defaultVoiceIdKey = 'elevenlabs_default_voice_id';
   static const String _defaultModelIdKey = 'elevenlabs_default_model_id';
   static const String _voiceStabilityKey = 'elevenlabs_voice_stability';
-  static const String _voiceSimilarityBoostKey = 'elevenlabs_voice_similarity_boost';
+  static const String _voiceSimilarityBoostKey =
+      'elevenlabs_voice_similarity_boost';
   static const String _useSpeakerBoostKey = 'elevenlabs_use_speaker_boost';
   static const String _enabledKey = 'elevenlabs_enabled';
   static const String _useLocalhostKey = 'elevenlabs_use_localhost';
 
   // Default values
-  static const String defaultVoiceId = 'Bj9UqZbhQsanLzgalpEG'; // Custom selected voice
+  static const String defaultVoiceId =
+      'Bj9UqZbhQsanLzgalpEG'; // Custom selected voice
   static const String defaultModelId = 'eleven_monolingual_v1';
   static const double defaultStability = 0.5;
   static const double defaultSimilarityBoost = 0.75;
@@ -127,9 +129,11 @@ class ElevenLabsConfig {
   static Future<String> getBaseUrl() async {
     final useLocalhost = await getUseLocalhost();
     if (useLocalhost) {
-      return GlobalConfiguration().appConfig['ElevenLabs']['LocalhostUrl'] ?? 'http://localhost:5000/api/elevenlabs';
+      return GlobalConfiguration().appConfig['ElevenLabs']['LocalhostUrl'] ??
+          'http://localhost:5192/api/elevenlabs';
     } else {
-      return GlobalConfiguration().appConfig['ElevenLabs']['ProductionUrl'] ?? 'https://api.elevenlabs.io/v1';
+      return GlobalConfiguration().appConfig['ElevenLabs']['ProductionUrl'] ??
+          'https://api.elevenlabs.io/v1';
     }
   }
 
@@ -167,7 +171,7 @@ class ElevenLabsConfig {
       prefs.remove(_enabledKey),
       prefs.remove(_useLocalhostKey),
     ];
-    
+
     final results = await Future.wait(futures);
     return results.every((result) => result);
   }
